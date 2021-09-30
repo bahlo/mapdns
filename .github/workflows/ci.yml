@@ -6,8 +6,6 @@ jobs:
   container:
     name: Build and publish docker container
     runs-on: ubuntu-latest
-    needs:
-      - build
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
