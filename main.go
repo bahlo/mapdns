@@ -3,11 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 
+	adapter "github.com/axiomhq/axiom-go/adapters/zap"
 	"github.com/miekg/dns"
 	"go.uber.org/zap"
 )
@@ -77,20 +79,32 @@ func (h *Handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 }
 
 func buildLogger() *zap.Logger {
-	var (
-		logger *zap.Logger
-		err    error
-	)
-
+	var logger *zap.Logger
 	if debug, _ := strconv.ParseBool(os.Getenv("MAPDNS_DEBUG")); debug {
+		// Debug, verbose logging
+		var err error
 		logger, err = zap.NewDevelopment()
+		if err != nil {
+			log.Fatal(err)
+		}
 	} else {
-		logger, err = zap.NewProduction()
-	}
+		// Prod
+		if os.Getenv("AXIOM_TOKEN") != "" {
+			// Axiom is set up, use their adapter
+			core, err := adapter.New()
+			if err != nil {
+				log.Fatal(err)
+			}
+			logger = zap.New(core, zap.Development())
+		} else {
+			// Use the default production logger
+			var err error
+			logger, err = zap.NewProduction()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 
-	if err != nil {
-		fmt.Fprintf(os.Stderr, `{"level":"error", "message": "Failed to set up logger", "error": %q}`, err)
-		os.Exit(1)
 	}
 
 	return logger
@@ -109,6 +123,7 @@ func main() {
 	srv := &dns.Server{Addr: ":53", Net: "udp"}
 	srv.Handler = &Handler{logger: logger, cfg: cfg}
 
+	logger.Info("Starting server", zap.String("addr", srv.Addr))
 	if err := srv.ListenAndServe(); err != nil {
 		logger.Error("Failed to set udp listener", zap.Error(err))
 	}
