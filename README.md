@@ -1,4 +1,4 @@
-# mapdns
+# mapdns [![CI](https://github.com/bahlo/mapdns/actions/workflows/ci.yml/badge.svg)](https://github.com/bahlo/mapdns/actions/workflows/ci.yml)
 
 A DNS server that's configured with a static JSON file.
 
