@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"strconv"
@@ -78,14 +77,14 @@ func (h *Handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	}
 }
 
-func buildLogger() *zap.Logger {
+func buildLogger() (*zap.Logger, error) {
 	var logger *zap.Logger
 	if debug, _ := strconv.ParseBool(os.Getenv("MAPDNS_DEBUG")); debug {
 		// Debug, verbose logging
 		var err error
 		logger, err = zap.NewDevelopment()
 		if err != nil {
-			log.Fatal(err)
+			return nil, fmt.Errorf("failed to create logger: %w", err)
 		}
 	} else {
 		// Prod
@@ -94,30 +93,38 @@ func buildLogger() *zap.Logger {
 			fmt.Fprintln(os.Stderr, "Using Axiom adapter")
 			core, err := adapter.New()
 			if err != nil {
-				log.Fatal(err)
+				return nil, fmt.Errorf("failed to create adapter: %w", err)
 			}
-			logger = zap.New(core, zap.Development())
+			logger = zap.New(core)
 		} else {
 			// Use the default production logger
 			var err error
 			logger, err = zap.NewProduction()
 			if err != nil {
-				log.Fatal(err)
+				return nil, fmt.Errorf("failed to create logger: %w", err)
 			}
 		}
-
 	}
 
-	return logger
+	return logger, nil
 }
 
 func main() {
-	logger := buildLogger()
-	defer logger.Sync()
+	logger, err := buildLogger()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed build logger: %v", err)
+		return
+	}
+	defer func() {
+		if err := logger.Sync(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to sync logs: %v", err)
+		}
+	}()
 
 	cfg, err := ReadConfig("mapdns.json")
 	if err != nil {
 		logger.Error("Failed to read config", zap.Error(err))
+		return
 	}
 	logger.Debug("Read config", zap.Any("config", cfg))
 
