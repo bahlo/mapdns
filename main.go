@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/miekg/dns"
@@ -27,19 +28,20 @@ func (c Config) Lookup(domain string) (Entry, bool) {
 			}
 		}
 	}
+
 	return entry, ok
 }
 
 func ReadConfig(fileName string) (Config, error) {
 	file, err := os.OpenFile(fileName, os.O_RDONLY, 0)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("failed to read config: %w", err)
 	}
 	defer file.Close()
 
 	var cfg Config
 	if err := json.NewDecoder(file).Decode(&cfg); err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("failed to decode config: %w", err)
 	}
 
 	return cfg, nil
@@ -74,11 +76,28 @@ func (h *Handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	}
 }
 
-func main() {
-	logger, err := zap.NewDevelopment()
+func buildLogger() *zap.Logger {
+	var (
+		logger *zap.Logger
+		err    error
+	)
+
+	if debug, _ := strconv.ParseBool(os.Getenv("MAPDNS_DEBUG")); debug {
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, `{"level":"error", "message": "Failed to set up logger", "error": %q}`, err)
+		os.Exit(1)
 	}
+
+	return logger
+}
+
+func main() {
+	logger := buildLogger()
 	defer logger.Sync()
 
 	cfg, err := ReadConfig("mapdns.json")
