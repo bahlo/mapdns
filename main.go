@@ -85,6 +85,7 @@ func main() {
 	if err != nil {
 		logger.Error("Failed to read config", zap.Error(err))
 	}
+	logger.Debug("Read config", zap.Any("config", cfg))
 
 	srv := &dns.Server{Addr: ":53", Net: "udp"}
 	srv.Handler = &Handler{logger: logger, cfg: cfg}
