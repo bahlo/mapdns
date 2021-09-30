@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 
@@ -110,16 +112,14 @@ func buildLogger() (*zap.Logger, error) {
 }
 
 func main() {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer cancel()
+
 	logger, err := buildLogger()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed build logger: %v", err)
 		return
 	}
-	defer func() {
-		if err := logger.Sync(); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to sync logs: %v", err)
-		}
-	}()
 
 	cfg, err := ReadConfig("mapdns.json")
 	if err != nil {
@@ -130,6 +130,16 @@ func main() {
 
 	srv := &dns.Server{Addr: ":53", Net: "udp"}
 	srv.Handler = &Handler{logger: logger, cfg: cfg}
+
+	go func() {
+		<-ctx.Done()
+		if err := logger.Sync(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to sync logger: %v", err)
+		}
+		if err := srv.Shutdown(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to shutdown server: %v", err)
+		}
+	}()
 
 	logger.Info("Starting server", zap.String("addr", srv.Addr))
 	if err := srv.ListenAndServe(); err != nil {
