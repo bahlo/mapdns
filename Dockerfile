@@ -7,4 +7,5 @@ FROM alpine
 LABEL org.opencontainers.image.source=https://github.com/bahlo/mapdns
 COPY --from=builder /usr/bin/mapdns /usr/bin/mapdns
 WORKDIR /opt/mapdns
+EXPOSE 53/udp
 ENTRYPOINT ["/usr/bin/mapdns"]
