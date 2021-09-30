@@ -91,6 +91,7 @@ func buildLogger() *zap.Logger {
 		// Prod
 		if os.Getenv("AXIOM_TOKEN") != "" {
 			// Axiom is set up, use their adapter
+			fmt.Fprintln(os.Stderr, "Using Axiom adapter")
 			core, err := adapter.New()
 			if err != nil {
 				log.Fatal(err)
