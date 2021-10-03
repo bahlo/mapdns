@@ -28,7 +28,8 @@ jobs:
           restore-keys: ${{ runner.os }}-go-
       - run: go build .
   container:
-    name: Build and publish docker container
+    name: Container
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
