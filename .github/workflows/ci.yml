@@ -8,10 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
       - uses: golangci/golangci-lint-action@v2
-        with:
-          skip-go-installation: true
   build:
     name: Build
     needs: lint
