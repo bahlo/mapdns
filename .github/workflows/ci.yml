@@ -14,7 +14,7 @@ jobs:
           skip-go-installation: true
   build:
     name: Build
-    needs: test
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
