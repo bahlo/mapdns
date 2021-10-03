@@ -25,8 +25,7 @@ system.
 
 ## Logging
 Expose `MAPDNS_DEBUG=true` to get debug logs. Otherwise it will only log on 
-errors. If you expose `AXIOM_*` variables it will log there instead (see 
-[the official example](https://github.com/axiomhq/axiom-go/blob/596ddce01169e7717d29ae7df413808c8056a7a6/examples/zap/main.go) for configuration).
+errors. 
 
-[^1] I use Tailscale and configured it to search for my internal network domain
+[^1]: I use Tailscale and configured it to search for my internal network domain
 on the DNS server I configured here.

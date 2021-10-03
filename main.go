@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 
-	adapter "github.com/axiomhq/axiom-go/adapters/zap"
 	"github.com/miekg/dns"
 	"go.uber.org/zap"
 )
@@ -80,35 +79,11 @@ func (h *Handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 }
 
 func buildLogger() (*zap.Logger, error) {
-	var logger *zap.Logger
 	if debug, _ := strconv.ParseBool(os.Getenv("MAPDNS_DEBUG")); debug {
-		// Debug, verbose logging
-		var err error
-		logger, err = zap.NewDevelopment()
-		if err != nil {
-			return nil, fmt.Errorf("failed to create logger: %w", err)
-		}
+		return zap.NewDevelopment()
 	} else {
-		// Prod
-		if os.Getenv("AXIOM_TOKEN") != "" {
-			// Axiom is set up, use their adapter
-			fmt.Fprintln(os.Stderr, "Using Axiom adapter")
-			core, err := adapter.New()
-			if err != nil {
-				return nil, fmt.Errorf("failed to create adapter: %w", err)
-			}
-			logger = zap.New(core)
-		} else {
-			// Use the default production logger
-			var err error
-			logger, err = zap.NewProduction()
-			if err != nil {
-				return nil, fmt.Errorf("failed to create logger: %w", err)
-			}
-		}
+		return zap.NewProduction()
 	}
-
-	return logger, nil
 }
 
 func main() {
