@@ -16,3 +16,14 @@ Create a `mapdns.json` in the same directory you're running the binary from, wit
 ```
 
 Run the binary and start making requests!
+
+## State of the project
+
+It works and I use it in my home network for split-dns. There is no tests and 
+no support for records other than `A`. Please don't use this on a production 
+system.
+
+## Logging
+Expose `MAPDNS_DEBUG=true` to get debug logs. Otherwise it will only log on 
+errors. If you expose `AXIOM_*` variables it will log there instead (see 
+[the official example](https://github.com/axiomhq/axiom-go/blob/596ddce01169e7717d29ae7df413808c8056a7a6/examples/zap/main.go) for configuration).
