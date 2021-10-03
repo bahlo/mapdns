@@ -1,6 +1,6 @@
 # mapdns [![CI](https://github.com/bahlo/mapdns/actions/workflows/ci.yml/badge.svg)](https://github.com/bahlo/mapdns/actions/workflows/ci.yml)
 
-A DNS server that's configured with a static JSON file.
+A DNS server that's configured with a static JSON file. Useful for split-dns.
 
 ## Example
 Create a `mapdns.json` in the same directory you're running the binary from, with content like this:
