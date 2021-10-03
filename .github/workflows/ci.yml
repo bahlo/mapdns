@@ -3,16 +3,37 @@ name: CI
 on: [push]
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+      - uses: golangci/golangci-lint-action@v2
+        with:
+          skip-go-installation: true
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
+      - run: go build .
   container:
     name: Build and publish docker container
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Login
-        run: docker login ghcr.io -u bahlo -p "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
-      - name: Build and publish docker latest
-        if: github.ref == 'refs/heads/main'
+      - uses: actions/checkout@v2
+      - run: docker login ghcr.io -u bahlo -p "${{ secrets.PERSONAL_ACCESS_TOKEN }}"
+      - if: github.ref == 'refs/heads/main'
         run: |
-          docker build -t ghcr.io/bahlo/mapdns:latest .
-          docker push ghcr.io/bahlo/mapdns:latest
+          docker build -t ghcr.io/${{ github.repository }}:latest .
+          docker push ghcr.io/${{ github.repository }}:latest
