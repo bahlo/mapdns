@@ -37,3 +37,8 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository }}:latest .
           docker push ghcr.io/${{ github.repository }}:latest
+      - if: startsWith(github.ref, 'refs/tags')
+        run: |
+          export TAG=$(echo "${{ github.ref }}" | sed 's/^refs\/tags\/v//g')
+          docker build -t ghcr.io/${{ github.repository }}:$TAG .
+          docker push ghcr.io/${{ github.repository }}:$TAG
