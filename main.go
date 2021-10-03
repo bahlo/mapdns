@@ -90,7 +90,11 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed build logger: %v", err)
 		return
 	}
-	defer logger.Sync()
+	defer func() {
+		if err := logger.Sync(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to sync logger: %v", err)
+		}
+	}()
 
 	cfg, err := ReadConfig("mapdns.json")
 	if err != nil {
