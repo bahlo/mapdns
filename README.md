@@ -2,6 +2,18 @@
 
 A DNS server that's configured with a static JSON file. Useful for split-dns.
 
+## Install
+
+### Go
+```shell
+go install github.com/bahlo/mapdns@v0.1.0
+```
+
+### Docker
+```shell
+docker pull ghcr.io/bahlo/mapdns:0.1.0
+```
+
 ## Example
 Create a `mapdns.json` in the same directory you're running the binary from, with content like this:
 ```json
