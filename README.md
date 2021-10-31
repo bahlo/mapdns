@@ -1,6 +1,6 @@
 # mapdns [![CI](https://github.com/bahlo/mapdns/actions/workflows/ci.yml/badge.svg)](https://github.com/bahlo/mapdns/actions/workflows/ci.yml)
 
-A smol DNS server (<100 loc) that's configured with a static JSON file. Useful for split-dns.
+A smol DNS server (around 100 loc) that's configured with a static JSON file. Useful for split-dns.
 
 ## Install
 
