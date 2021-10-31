@@ -19,7 +19,8 @@ Create a `mapdns.json` in the same directory you're running the binary from, wit
 ```json
 {
 	"foo.example.org.": {
-		"A": "1.2.3.4"
+		"A": "1.2.3.4",
+		"AAAA": "::1"
 	},
 	"*.foo.example.org.": {
 		"A": "1.2.3.4"
@@ -31,9 +32,9 @@ Run the binary and start making requests!
 
 ## State of the project
 
-It works and I use it in my home network for split-dns[^1]. There is no tests and 
-no support for records other than `A`. Please don't use this on a production 
-system.
+It works and I use it in my home network for split-dns[^1]. 
+There is no tests and no support for records other than `A` and `AAAA`. 
+Please don't use this on a production system.
 
 ## Logging
 Expose `MAPDNS_DEBUG=true` to get debug logs. Otherwise it will only log on 
