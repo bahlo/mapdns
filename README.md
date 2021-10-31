@@ -33,7 +33,7 @@ Run the binary and start making requests!
 ## State of the project
 
 It works and I use it in my home network for split-dns[^1]. 
-There is no tests and no support for records other than `A` and `AAAA`. 
+There is little tests and no support for records other than `A` and `AAAA`. 
 Please don't use this on a production system.
 
 ## Logging
