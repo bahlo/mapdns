@@ -13,7 +13,8 @@ import (
 )
 
 type Entry struct {
-	A string
+	A    string
+	AAAA string
 }
 
 type Config map[string]Entry
@@ -56,19 +57,27 @@ func (h *Handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	msg := dns.Msg{}
 	msg.SetReply(r)
 
-	switch r.Question[0].Qtype {
-	case dns.TypeA:
-		msg.Authoritative = true
-		domain := msg.Question[0].Name
-		address, ok := h.cfg.Lookup(domain)
-		h.logger.Debug("Looked up domain", zap.String("domain", domain), zap.String("A", address.A))
+	msg.Authoritative = true
+	domain := msg.Question[0].Name
+	address, ok := h.cfg.Lookup(domain)
 
-		if ok && address.A != "" {
+	if ok {
+		h.logger.Debug("Looked up domain", zap.String("domain", domain), zap.String("A", address.A))
+		switch r.Question[0].Qtype {
+		case dns.TypeA:
 			msg.Answer = append(msg.Answer, &dns.A{
 				Hdr: dns.RR_Header{Name: domain, Rrtype: dns.TypeA, Class: dns.ClassINET, Ttl: 60},
 				A:   net.ParseIP(address.A),
 			})
+		case dns.TypeAAAA:
+			msg.Answer = append(msg.Answer, &dns.AAAA{
+				Hdr:  dns.RR_Header{Name: domain, Rrtype: dns.TypeAAAA, Class: dns.ClassINET, Ttl: 60},
+				AAAA: net.ParseIP(address.AAAA),
+			})
 		}
+	} else {
+		h.logger.Debug("Could not find domain", zap.String("domain", domain))
+		// We still want to return to not produce timeouts
 	}
 
 	if err := w.WriteMsg(&msg); err != nil {
