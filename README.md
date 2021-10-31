@@ -6,12 +6,12 @@ A smol DNS server (around 100 loc) that's configured with a static JSON file. Us
 
 ### Go
 ```shell
-go install github.com/bahlo/mapdns@v0.1.0
+go install github.com/bahlo/mapdns@v0.2.0
 ```
 
 ### Docker
 ```shell
-docker pull ghcr.io/bahlo/mapdns:0.1.0
+docker pull ghcr.io/bahlo/mapdns:0.2.0
 ```
 
 ## Example
